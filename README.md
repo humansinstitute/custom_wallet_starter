@@ -1,4 +1,4 @@
-# 90scashu
+# Cashu Starter Wallet
 
 To install dependencies:
 
