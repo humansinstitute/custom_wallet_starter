@@ -1,0 +1,20 @@
+{
+  "name": "90scashu",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "bun run scripts/manage.ts start",
+    "stop": "bun run scripts/manage.ts stop",
+    "restart": "bun run scripts/manage.ts restart",
+    "dev": "bun run src/server.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@contextvm/sdk": "^0.1.37"
+  }
+}
