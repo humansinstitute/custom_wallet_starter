@@ -1,7 +1,31 @@
 import { createServer } from "node:http";
 import { once } from "node:events";
 import net from "node:net";
-import { createLogger } from "@contextvm/sdk/core/utils/logger";
+type LogLevel = "info" | "error";
+
+type LogFields = Record<string, unknown> | undefined;
+
+function createLogger({ name }: { name: string }) {
+  const prefix = `[${name}]`;
+
+  function log(level: LogLevel, fields: LogFields, message: string) {
+    const writer = level === "error" ? console.error : console.log;
+    if (fields && Object.keys(fields).length > 0) {
+      writer(`${prefix} ${message}`, fields);
+    } else {
+      writer(`${prefix} ${message}`);
+    }
+  }
+
+  return {
+    info(fields: LogFields, message: string) {
+      log("info", fields, message);
+    },
+    error(fields: LogFields, message: string) {
+      log("error", fields, message);
+    },
+  };
+}
 
 const logger = createLogger({ name: "90scashu-server" });
 
