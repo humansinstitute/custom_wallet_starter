@@ -1,3 +1,26 @@
+## Coding Style & Naming Conventions
+
+YOU SHOULD GIT COMMIT EACH CHANGE YOU MAKE WITH A DESCRIPTIVE NAME
+
+NEVER PUSH CHANGES TO GIT - I  WILL DO THAT MANUALLY AFTER CHANGING.
+
+Tell me in your wrap up message what the git commit message was. 
+
+TypeScript is the default; prefer ESM imports and explicit extensions when needed (`./foo.ts`). Use two-space indentation, trailing semicolons, and single quotes only inside template literals. Name files with kebab-case, classes/types with PascalCase, and functions or variables in camelCase. Co-locate agent helpers under `src/agents/` and UI utilities under `src/ui/` to keep files under 400 lines. Follow the strict TypeScript configuration in `tsconfig.json`; address compiler warnings before committing.
+
+DONT RUN TESTS. THEY DONT HELP -> WE TEST MANUALLY AROUND HERE.
+
+Keep changes tightly scoped: satisfy the request with the smallest viable diff unless the user explicitly asks for broader refactors.
+
+When summarising your activity, please state what can be tested currently and if there is remaining work to complete. 
+
+## Testing Guidelines
+
+Place unit tests beside the code (`feature.test.ts`) or in a sibling `__tests__` folder. Mock subprocesses via lightweight stubs rather than spawning real CLIs. Keep coverage meaningful around session lifecycle code (`ProcessManager`), especially port allocation and cleanup. Add regression tests when modifying API contracts in `src/server.ts`.
+
+## Commit & Pull Request Guidelines
+
+Write imperative, present-tense commit subjects ≤72 characters (e.g., `Add process log streaming guard`). Separate logical changes into individual commits. PRs should describe scope, risks, and any configuration changes (env vars, ports). Link issues when relevant and include screenshots for UI tweaks (`/home`, `/live`).
 
 Default to using Bun instead of Node.js.
 
@@ -18,17 +41,6 @@ Default to using Bun instead of Node.js.
 - Prefer `Bun.file` over `node:fs`'s readFile/writeFile
 - Bun.$`ls` instead of execa.
 
-## Testing
-
-Use `bun test` to run tests.
-
-```ts#index.test.ts
-import { test, expect } from "bun:test";
-
-test("hello world", () => {
-  expect(1).toBe(1);
-});
-```
 
 ## Frontend
 
