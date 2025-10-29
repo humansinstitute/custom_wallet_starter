@@ -153,7 +153,7 @@ export class CashubashClient implements Cashubash {
     });
 
     // Auto-connect in constructor
-    this.client.connect(this.transport).catch((error) => {
+    this.client.connect(this.transport, { timeout: 60_000 }).catch((error) => {
       console.error(`Failed to connect to server: ${error}`);
     });
   }
