@@ -55,7 +55,7 @@ function startServer() {
     return;
   }
 
-  const child = spawn("bun", ["run", "src/server.ts"], {
+  const child = spawn("bun", ["run", "src/index.ts"], {
     cwd: PROJECT_ROOT,
     stdio: "inherit",
     detached: true,

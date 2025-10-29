@@ -1,4 +1,3 @@
-import { createServer } from "node:http";
 import { once } from "node:events";
 import net from "node:net";
 type LogLevel = "info" | "error";
@@ -27,7 +26,7 @@ function createLogger({ name }: { name: string }) {
   };
 }
 
-const logger = createLogger({ name: "90scashu-server" });
+const logger = createLogger({ name: "90scashu-web" });
 
 async function findAvailablePort(startPort: number): Promise<number> {
   let port = Math.max(0, startPort);
@@ -164,28 +163,28 @@ function renderHtml(): string {
 
 async function start() {
   const port = await findAvailablePort(4000);
-
-  const server = createServer((_, res) => {
-    res.setHeader("Content-Type", "text/html; charset=utf-8");
-    res.writeHead(200);
-    res.end(renderHtml());
+  const server = Bun.serve({
+    port,
+    fetch: () =>
+      new Response(renderHtml(), {
+        headers: {
+          "Content-Type": "text/html; charset=utf-8",
+        },
+      }),
+    error(err) {
+      logger.error({ err }, "server error");
+      return new Response("Internal Server Error", { status: 500 });
+    },
+    reusePort: false,
   });
 
-  server.on("error", (err) => {
-    logger.error({ err }, "server error");
-    process.exit(1);
-  });
-
-  server.listen(port, "0.0.0.0", () => {
-    logger.info({ port }, `90s Cashu server ready on port ${port}`);
-  });
+  logger.info({ port: server.port }, `90s Cashu web UI ready on port ${server.port}`);
 
   await once(process, "SIGTERM");
   logger.info("Received SIGTERM, shutting down.");
-  server.close(() => {
-    logger.info("Server closed.");
-    process.exit(0);
-  });
+  server.stop();
+  logger.info("Server closed.");
+  process.exit(0);
 }
 
 start().catch((error) => {
