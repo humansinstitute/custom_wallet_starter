@@ -14,6 +14,20 @@ Keep changes tightly scoped: satisfy the request with the smallest viable diff u
 
 When summarising your activity, please state what can be tested currently and if there is remaining work to complete. 
 
+## Custom Wallet Architecture
+
+- Treat the wallet app as front end only; never add backend logic here.
+- Always integrate with the existing client in `src/ctxcn/CashubashClient.ts` to reach wallet services through contextv/mcp.
+- When a user wants a new wallet, create a fresh front end skin that reuses that same client layer rather than building duplicate service code.
+- Lightning invoices must always be rendered from client data that flows through `CashubashClient`; do not reimplement invoice services locally.
+
+## Lightning Invoice UX
+
+- Depend on the bundled `qrcode` package to render any BOLT11 invoice as a QR code on the front end.
+- Generate QR content by calling `import QRCode from 'qrcode';` and using `QRCode.toDataURL(invoice)` (or `toCanvas` for direct DOM rendering) within UI components.
+- Provide a visible fallback (copyable invoice string) for accessibility while keeping the QR code as the primary display.
+- Keep QR generation encapsulated in front end utilities (for example, `src/ui/qr.ts`) so multiple wallet skins can reuse the same logic.
+
 ## Testing Guidelines
 
 Place unit tests beside the code (`feature.test.ts`) or in a sibling `__tests__` folder. Mock subprocesses via lightweight stubs rather than spawning real CLIs. Keep coverage meaningful around session lifecycle code (`ProcessManager`), especially port allocation and cleanup. Add regression tests when modifying API contracts in `src/server.ts`.
