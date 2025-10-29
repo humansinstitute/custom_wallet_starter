@@ -26,7 +26,7 @@ function createLogger({ name }: { name: string }) {
   };
 }
 
-const logger = createLogger({ name: "90scashu-web" });
+const logger = createLogger({ name: "custom-starter-web" });
 
 async function findAvailablePort(startPort: number): Promise<number> {
   let port = Math.max(0, startPort);
@@ -63,7 +63,7 @@ function renderHtml(): string {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>90s Cashu</title>
+  <title>Custom Starter Wallet</title>
   <style>
     :root {
       color-scheme: light dark;
@@ -75,87 +75,46 @@ function renderHtml(): string {
     body {
       margin: 0;
       min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: linear-gradient(160deg, #101030, #2c1f4a);
-      color: #f6f6fb;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(140deg, #050505, #1f1f1f);
+      color: #f5f5f5;
+      padding: 2rem;
     }
     main {
-      width: min(90vw, 28rem);
-      padding: 2.75rem 2.25rem;
-      border-radius: 1.75rem;
-      background: rgba(16, 16, 48, 0.85);
-      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35);
+      max-width: 48rem;
+      text-align: center;
       display: flex;
       flex-direction: column;
-      gap: 1.75rem;
+      gap: 1.5rem;
     }
-    h1 {
+    blockquote {
       margin: 0;
-      font-size: clamp(2.25rem, 7vw, 3rem);
-      line-height: 1.05;
+      font-size: clamp(1.5rem, 4vw, 2.5rem);
+      font-style: italic;
+      line-height: 1.5;
+    }
+    cite {
+      display: block;
+      margin-top: 1rem;
+      font-size: 1rem;
+      opacity: 0.7;
       text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: #ffec99;
-      text-shadow: 0 0 18px rgba(255, 236, 153, 0.5);
+      letter-spacing: 0.08em;
     }
     p {
       margin: 0;
-      font-size: clamp(1rem, 3.5vw, 1.15rem);
-      line-height: 1.6;
-      opacity: 0.9;
-    }
-    .cta {
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-    }
-    .cta button {
-      padding: 0.85rem 1.25rem;
-      border-radius: 999px;
-      border: none;
-      font-weight: 600;
-      font-size: 1rem;
+      font-size: 1.1rem;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: #1c1535;
-      background: linear-gradient(115deg, #ff71d4, #7ddcff);
-      box-shadow: 0 14px 35px rgba(125, 220, 255, 0.4);
-      transition: transform 0.25s ease, box-shadow 0.25s ease;
-      cursor: pointer;
-    }
-    .cta button:active,
-    .cta button:focus-visible,
-    .cta button:hover {
-      transform: translateY(-2px) scale(1.01);
-      box-shadow: 0 18px 40px rgba(125, 220, 255, 0.55);
-      outline: none;
-    }
-    footer {
-      font-size: 0.85rem;
-      opacity: 0.7;
-      letter-spacing: 0.04em;
-    }
-    @media (min-width: 768px) {
-      main {
-        padding: 3rem 3rem;
-        gap: 2rem;
-      }
+      letter-spacing: 0.12em;
     }
   </style>
 </head>
 <body>
   <main>
-    <h1>90s Cashu</h1>
-    <p>A delightfully retro experience built with Bun + TypeScript. Fully responsive and tuned for mobile-first delight.</p>
-    <div class="cta">
-      <button type="button">Launch the vibe</button>
-      <button type="button" style="background: rgba(255, 255, 255, 0.1); color: #f8f7ff; box-shadow: none;">
-        Discover ContextVM
-      </button>
-    </div>
-    <footer>Powered by ContextVM SDK ⚡️</footer>
+    <blockquote>"We could have been anything that we wanted to be"</blockquote>
+    <cite>— Bugsy Malone, on Cashu Wallets.</cite>
+    <p>Vibe Hard</p>
   </main>
 </body>
 </html>`;
@@ -178,7 +137,7 @@ async function start() {
     reusePort: false,
   });
 
-  logger.info({ port: server.port }, `90s Cashu web UI ready on port ${server.port}`);
+  logger.info({ port: server.port }, `Custom Starter Wallet ready on port ${server.port}`);
 
   await once(process, "SIGTERM");
   logger.info("Received SIGTERM, shutting down.");
