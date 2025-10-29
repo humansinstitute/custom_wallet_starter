@@ -27,6 +27,7 @@ When summarising your activity, please state what can be tested currently and if
 - Generate QR content by calling `import QRCode from 'qrcode';` and using `QRCode.toDataURL(invoice)` (or `toCanvas` for direct DOM rendering) within UI components.
 - Provide a visible fallback (copyable invoice string) for accessibility while keeping the QR code as the primary display.
 - Keep QR generation encapsulated in front end utilities (for example, `src/ui/qr.ts`) so multiple wallet skins can reuse the same logic.
+- For scanning invoices, use `html5-qrcode`; its mobile-friendly camera integration should be wrapped in a reusable UI helper (for example, `src/ui/qr-scanner.ts`).
 
 ## Testing Guidelines
 
