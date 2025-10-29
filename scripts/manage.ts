@@ -1,4 +1,5 @@
 import { spawn } from "node:child_process";
+import { once } from "node:events";
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import process from "node:process";
@@ -48,7 +49,13 @@ function isProcessRunning(pid: number | null): pid is number {
   }
 }
 
-function startServer() {
+function delay(ms: number) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
+async function startServer() {
   const existingPid = readPidFile();
   if (isProcessRunning(existingPid)) {
     console.log(`Server already running with PID ${existingPid}`);
@@ -58,7 +65,6 @@ function startServer() {
   const child = spawn("bun", ["run", "src/index.ts"], {
     cwd: PROJECT_ROOT,
     stdio: "inherit",
-    detached: true,
   });
 
   if (!child.pid) {
@@ -66,21 +72,35 @@ function startServer() {
     process.exit(1);
   }
 
-  child.on("exit", (code, signal) => {
-    removePidFile();
+  writePidFile(child.pid);
+  console.log(`Started server on PID ${child.pid}`);
+
+  const handleSignal = (signal: NodeJS.Signals) => {
+    console.log(`Received ${signal}, stopping server...`);
+    if (isProcessRunning(child.pid)) {
+      process.kill(child.pid, "SIGTERM");
+    }
+  };
+
+  process.on("SIGINT", handleSignal);
+  process.on("SIGTERM", handleSignal);
+
+  try {
+    const [code, signal] = await once(child, "exit") as [number | null, NodeJS.Signals | null];
     if (code !== null && code !== 0) {
       console.error(`Server process exited with code ${code}`);
+      process.exitCode = code;
     } else if (signal) {
       console.log(`Server process terminated with signal ${signal}`);
     }
-  });
-
-  writePidFile(child.pid);
-  child.unref();
-  console.log(`Started server on PID ${child.pid}`);
+  } finally {
+    removePidFile();
+    process.off("SIGINT", handleSignal);
+    process.off("SIGTERM", handleSignal);
+  }
 }
 
-function stopServer() {
+async function stopServer() {
   const pid = readPidFile();
 
   if (!isProcessRunning(pid)) {
@@ -95,12 +115,11 @@ function stopServer() {
   removePidFile();
 }
 
-function restartServer() {
-  stopServer();
+async function restartServer() {
+  await stopServer();
   // Small delay to give the OS time to release the port before restarting.
-  setTimeout(() => {
-    startServer();
-  }, 500);
+  await delay(500);
+  await startServer();
 }
 
 function parseAction(): Action {
@@ -117,16 +136,20 @@ function parseAction(): Action {
 
 const action = parseAction();
 
-switch (action) {
-  case "start":
-    startServer();
-    break;
-  case "stop":
-    stopServer();
-    break;
-  case "restart":
-    restartServer();
-    break;
-  default:
-    process.exit(1);
+async function main() {
+  switch (action) {
+    case "start":
+      await startServer();
+      break;
+    case "stop":
+      await stopServer();
+      break;
+    case "restart":
+      await restartServer();
+      break;
+    default:
+      process.exit(1);
+  }
 }
+
+await main();
