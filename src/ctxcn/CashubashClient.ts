@@ -133,9 +133,16 @@ export class CashubashClient implements Cashubash {
       relays = ["wss://relay.contextvm.org"],
       signer = new PrivateKeySigner(privateKey || ""),
       relayHandler = new ApplesauceRelayPool(relays),
- 			serverPubkey = CashubashClient.SERVER_PUBKEY,
+      serverPubkey = CashubashClient.SERVER_PUBKEY,
       ...rest
     } = options;
+
+    console.log(`[CashubashClient] Relays: ${relays.join(", ")}`);
+    if (!serverPubkey) {
+      console.warn("[CashubashClient] SERVER_PUBKEY env var is not set; connectivity may fail.");
+    } else {
+      console.log(`[CashubashClient] Server pubkey: ${serverPubkey}`);
+    }
 
     this.transport = new NostrClientTransport({
       serverPubkey,
