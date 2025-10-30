@@ -28,17 +28,26 @@ function createLogger({ name }: { name: string }) {
 
 const logger = createLogger({ name: "custom-starter-web" });
 
-async function findAvailablePort(startPort: number): Promise<number> {
-  let port = Math.max(0, startPort);
+const PORT_RANGE_START = 41000;
+const PORT_RANGE_END = 41999;
 
-  while (true) {
+async function findAvailablePort(): Promise<number> {
+  const rangeSize = PORT_RANGE_END - PORT_RANGE_START + 1;
+  let port = PORT_RANGE_START;
+  let attempts = 0;
+
+  while (attempts < rangeSize) {
     // eslint-disable-next-line no-await-in-loop
     const available = await isPortAvailable(port);
     if (available) {
       return port;
     }
-    port += 1;
+
+    port = port === PORT_RANGE_END ? PORT_RANGE_START : port + 1;
+    attempts += 1;
   }
+
+  throw new Error("No available ports in configured range");
 }
 
 function isPortAvailable(port: number): Promise<boolean> {
@@ -121,7 +130,7 @@ function renderHtml(): string {
 }
 
 async function start() {
-  const port = await findAvailablePort(4000);
+  const port = await findAvailablePort();
   const server = Bun.serve({
     port,
     fetch: () =>
@@ -137,7 +146,8 @@ async function start() {
     reusePort: false,
   });
 
-  logger.info({ port: server.port }, `Custom Starter Wallet ready on port ${server.port}`);
+  console.log(`[WINGMANINFO] PORT=${server.port}`);
+  console.log(`[WINGMANINFO] URL=https://wingman.otherstuff.ai:${server.port}`);
 
   await once(process, "SIGTERM");
   logger.info("Received SIGTERM, shutting down.");
