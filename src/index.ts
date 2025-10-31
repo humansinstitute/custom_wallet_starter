@@ -147,7 +147,7 @@ async function start() {
   });
 
   console.log(`[WINGMANINFO] PORT=${server.port}`);
-  console.log(`[WINGMANINFO] URL=https://wingman.otherstuff.ai:${server.port}`);
+  console.log(`[WINGMAN21-URL]https://host.otherstuff.ai/${server.port}`);
 
   await once(process, "SIGTERM");
   logger.info("Received SIGTERM, shutting down.");
