@@ -184,8 +184,6 @@ function renderHtml(): string {
 </head>
 <body>
   <main>
-    <p>Hello</p>
-    <p>Hot reload check</p>
     <blockquote>"We could have been anything that we wanted to be"</blockquote>
     <cite>— Bugsy Malone, on Cashu Wallets.</cite>
     <p>Vibe Hard</p>
