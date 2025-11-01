@@ -30,6 +30,40 @@ const logger = createLogger({ name: "custom-starter-web" });
 
 const PORT_RANGE_START = 41000;
 const PORT_RANGE_END = 41999;
+const PORT_FILE = ".port";
+
+async function readPersistedPort(): Promise<number | null> {
+  try {
+    const file = Bun.file(PORT_FILE);
+    if (!(await file.exists())) {
+      return null;
+    }
+
+    const contents = await file.text();
+    const parsed = Number.parseInt(contents.trim(), 10);
+
+    if (
+      Number.isNaN(parsed) ||
+      parsed < PORT_RANGE_START ||
+      parsed > PORT_RANGE_END
+    ) {
+      return null;
+    }
+
+    return parsed;
+  } catch (error) {
+    logger.error({ err: error }, "Failed to read persisted port");
+    return null;
+  }
+}
+
+async function persistPort(port: number): Promise<void> {
+  try {
+    await Bun.write(PORT_FILE, `${port}`);
+  } catch (error) {
+    logger.error({ err: error }, "Failed to persist port");
+  }
+}
 
 async function findAvailablePort(): Promise<number> {
   const rangeSize = PORT_RANGE_END - PORT_RANGE_START + 1;
@@ -131,7 +165,13 @@ function renderHtml(): string {
 }
 
 async function start() {
-  const port = await findAvailablePort();
+  let port = await readPersistedPort();
+  if (port === null || !(await isPortAvailable(port))) {
+    port = await findAvailablePort();
+  }
+
+  await persistPort(port);
+
   const server = Bun.serve({
     port,
     fetch: () =>
