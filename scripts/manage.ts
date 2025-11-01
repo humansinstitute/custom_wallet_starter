@@ -62,7 +62,7 @@ async function startServer() {
     return;
   }
 
-  const child = spawn("bun", ["run", "src/index.ts"], {
+  const child = spawn("bun", ["--hot", "src/index.ts"], {
     cwd: PROJECT_ROOT,
     stdio: "inherit",
   });
