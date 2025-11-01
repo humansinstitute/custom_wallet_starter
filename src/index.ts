@@ -31,7 +31,7 @@ const logger = createLogger({ name: "custom-starter-web" });
 const PORT_RANGE_START = 41000;
 const PORT_RANGE_END = 41999;
 const PORT_FILE = ".port";
-const PORT_RELEASE_TIMEOUT_MS = 2000;
+const PORT_RELEASE_TIMEOUT_MS = 10000;
 const PORT_POLL_INTERVAL_MS = 50;
 
 function delay(ms: number) {
@@ -196,8 +196,13 @@ function renderHtml(): string {
 async function start() {
   let port = await readPersistedPort();
   if (port !== null) {
+    logger.info({ port }, "Attempting to reuse persisted port");
     const released = await waitForPortRelease(port, PORT_RELEASE_TIMEOUT_MS);
     if (!released) {
+      logger.info(
+        { port, timeoutMs: PORT_RELEASE_TIMEOUT_MS },
+        "Persisted port still in use after timeout; selecting a new port",
+      );
       port = null;
     }
   }
