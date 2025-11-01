@@ -31,6 +31,14 @@ const logger = createLogger({ name: "custom-starter-web" });
 const PORT_RANGE_START = 41000;
 const PORT_RANGE_END = 41999;
 const PORT_FILE = ".port";
+const PORT_RELEASE_TIMEOUT_MS = 2000;
+const PORT_POLL_INTERVAL_MS = 50;
+
+function delay(ms: number) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
 
 async function readPersistedPort(): Promise<number | null> {
   try {
@@ -59,6 +67,11 @@ async function readPersistedPort(): Promise<number | null> {
 
 async function persistPort(port: number): Promise<void> {
   try {
+    const existing = await readPersistedPort();
+    if (existing === port) {
+      return;
+    }
+
     await Bun.write(PORT_FILE, `${port}`);
   } catch (error) {
     logger.error({ err: error }, "Failed to persist port");
@@ -98,6 +111,22 @@ function isPortAvailable(port: number): Promise<boolean> {
 
     tester.listen(port, "0.0.0.0");
   });
+}
+
+async function waitForPortRelease(port: number, timeoutMs: number): Promise<boolean> {
+  const startedAt = Date.now();
+  while (Date.now() - startedAt < timeoutMs) {
+    // eslint-disable-next-line no-await-in-loop
+    const available = await isPortAvailable(port);
+    if (available) {
+      return true;
+    }
+
+    // eslint-disable-next-line no-await-in-loop
+    await delay(PORT_POLL_INTERVAL_MS);
+  }
+
+  return isPortAvailable(port);
 }
 
 function renderHtml(): string {
@@ -165,7 +194,14 @@ function renderHtml(): string {
 
 async function start() {
   let port = await readPersistedPort();
-  if (port === null || !(await isPortAvailable(port))) {
+  if (port !== null) {
+    const released = await waitForPortRelease(port, PORT_RELEASE_TIMEOUT_MS);
+    if (!released) {
+      port = null;
+    }
+  }
+
+  if (port === null) {
     port = await findAvailablePort();
   }
 
