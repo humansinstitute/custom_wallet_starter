@@ -6,7 +6,8 @@
     "start": "bun run scripts/manage.ts start",
     "stop": "bun run scripts/manage.ts stop",
     "restart": "bun run scripts/manage.ts restart",
-    "dev": "bun run src/index.ts"
+    "dev": "bun run src/index.ts",
+    "setup": "bun run scripts/setup.ts"
   },
   "devDependencies": {
     "@types/bun": "latest"
